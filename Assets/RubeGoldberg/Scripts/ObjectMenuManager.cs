@@ -8,6 +8,7 @@ public class ObjectMenuManager : MonoBehaviour {
     public List<int> objectGenerationLimitList;
 
     public int currentObject = 0;
+    public bool isShowing = false;
 
     [SerializeField]
     private float instantiateDistance = 1f;
@@ -20,30 +21,31 @@ public class ObjectMenuManager : MonoBehaviour {
     public void Show(bool show)
     {
         objectList[currentObject].SetActive(show);
+        isShowing = show;
     }
 
     public void MenuLeft()
     {
-        objectList[currentObject].SetActive(false);
+        Show(false);
         currentObject--;
         if (currentObject < 0)
         {
             currentObject = objectList.Count - 1;
         }
-        StartCoroutine(ShowActiveMenuItem(showTime, objectList[currentObject]));
-        //objectList[currentObject].SetActive(true);
+        //StartCoroutine(ShowActiveMenuItem(showTime, objectList[currentObject]));
+        Show(true);
     }
 
     public void MenuRight()
     {
-        objectList[currentObject].SetActive(false);
+        Show(false);
         currentObject++;
         if (currentObject > objectList.Count - 1)
         {
             currentObject = 0;
         }
-        StartCoroutine(ShowActiveMenuItem(showTime, objectList[currentObject]));
-        //objectList[currentObject].SetActive(true);
+        //StartCoroutine(ShowActiveMenuItem(showTime, objectList[currentObject]));
+        Show(true);
     }
 
     private IEnumerator ShowActiveMenuItem(float time, GameObject menuItem)

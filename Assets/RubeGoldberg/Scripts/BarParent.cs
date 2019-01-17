@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BarParent : MonoBehaviour {
+    public AudioSource turnSource;
+    public AudioClip turnClip;
+    public AudioSource clickSource;
+    public AudioClip clickClip;
+
     public GameController gameController;
     public float rotateSpeed = 60f;
 
@@ -28,11 +33,14 @@ public class BarParent : MonoBehaviour {
 
     public void Rotate()
     {
+        turnSource.Play();
         rotating = true;
     }
 
     public void FinishRotation()
     {
+        turnSource.Stop();
+        clickSource.PlayOneShot(clickClip);
         rotating = false;
         GetComponentInChildren<RubeTarBar>().ReleaseBall();
     }

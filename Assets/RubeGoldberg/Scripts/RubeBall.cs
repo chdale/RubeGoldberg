@@ -4,6 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class RubeBall : MonoBehaviour {
+    public AudioSource resetSource;
+    public AudioClip resetClip;
+
+    public AudioSource throwSource;
+    public AudioClip throwClip;
+
+    public AudioSource starCollectSource;
+    public AudioClip starCollectClip;
 
     public GameController GameController;
 
@@ -17,6 +25,7 @@ public class RubeBall : MonoBehaviour {
     void Start () {
         startingPosition = transform.position;
         thisRB = gameObject.GetComponent<Rigidbody>();
+        thisRB.useGravity = true;
 	}
 	
 	// Update is called once per frame
@@ -29,9 +38,11 @@ public class RubeBall : MonoBehaviour {
         if(collision.gameObject.tag.Equals("Collectible", StringComparison.InvariantCultureIgnoreCase))
         {
             thisRB.velocity = prevVelocity * velocityNudge; //Makes up for loss of velocity on collectible
+            starCollectSource.PlayOneShot(starCollectClip);
         }
         if(collision.gameObject.tag.Equals("Floor", StringComparison.InvariantCultureIgnoreCase))
         {
+            resetSource.PlayOneShot(resetClip);
             Reset();
         }
     }
@@ -42,5 +53,10 @@ public class RubeBall : MonoBehaviour {
         thisRB.useGravity = true;
         thisRB.isKinematic = false;
         GameController.Reset();
+    }
+
+    public void PlayThrowAudio()
+    {
+        throwSource.PlayOneShot(throwClip);
     }
 }

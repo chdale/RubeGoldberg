@@ -4,6 +4,18 @@ using System.Linq;
 using UnityEngine;
 
 public class TeleportInputController : MonoBehaviour {
+    public AudioClip teleportationHold;
+    private bool holdPlay = false;
+    public AudioClip teleportationGo;
+    private bool goPlay = false;
+    public AudioSource teleportationHoldSource;
+    public AudioSource teleportationGoSource;
+    public GameController gameController;
+    public OculusUI oculusUI;
+    private bool teleportInstructionActive = false;
+    private bool platformInstructionActive = false;
+    public bool platformComplete = false;
+    public GameObject teleportArrow;
 
     public int laserMask;
     public GameObject teleportAimerObject;
@@ -14,8 +26,8 @@ public class TeleportInputController : MonoBehaviour {
     private bool laserActive = false;
     private float yNudgeAmount;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         yNudgeAmount = player.transform.position.y;
         laser = GetComponentInChildren<LineRenderer>();
 	}
@@ -24,6 +36,12 @@ public class TeleportInputController : MonoBehaviour {
 	void Update () {
 		if (OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick).y > .5)
         {
+            goPlay = false;
+            if (!holdPlay)
+            {
+                teleportationHoldSource.Play();
+                holdPlay = true;
+            }
             laser.gameObject.SetActive(true);
             laser.SetPosition(0, gameObject.transform.position);
 
@@ -60,9 +78,40 @@ public class TeleportInputController : MonoBehaviour {
             laser.gameObject.SetActive(false);
             if (laserActive)
             {
+                holdPlay = false;
+                teleportationHoldSource.Stop();
+                if (!goPlay)
+                {
+                    teleportationGoSource.PlayOneShot(teleportationGo);
+                    goPlay = true;
+                }
                 teleportAimerObject.SetActive(false);
                 player.transform.position = new Vector3(teleportLocation.x, teleportLocation.y + yNudgeAmount, teleportLocation.z);
+                if (teleportInstructionActive)
+                {
+                    oculusUI.SetTeleport(false);
+                    oculusUI.SetPlatform(true);
+                    teleportArrow.SetActive(true);
+                    platformInstructionActive = true;
+                    teleportInstructionActive = false;
+                }
+                if (platformInstructionActive && !gameController.isOutsidePlatform)
+                {
+                    oculusUI.SetPlatform(false);
+                    teleportArrow.SetActive(false);
+                    platformInstructionActive = false;
+                    platformComplete = true;
+                }
             }
         }
 	}
+
+    public void SetTutorialActive()
+    {
+        if (gameController.isTutorial)
+        {
+            teleportInstructionActive = true;
+            oculusUI.SetTeleport(true);
+        }
+    }
 }

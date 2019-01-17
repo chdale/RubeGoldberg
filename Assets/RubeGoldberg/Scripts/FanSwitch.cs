@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class FanSwitch : MonoBehaviour, IRotatable {
+    public AudioSource leverSource;
+    public AudioClip leverClip;
+    private bool leverGo = false;
+
     public FanBehaviour fanBehaviour;
     public GameObject forwardUI;
     public GameObject backwardUI;
@@ -39,7 +43,7 @@ public class FanSwitch : MonoBehaviour, IRotatable {
         var wrappedAngle = WrapAngle(this.gameObject.transform.localRotation.eulerAngles.x);
         if (wrappedAngle > fanRotationThreshold)
         {
-            fanBehaviour.FanBlow = true;
+            fanBehaviour.fanState = FanState.Blow;
             if (forwardUI != null && backwardUI != null)
             {
                 FanBlowUI(true);
@@ -47,7 +51,7 @@ public class FanSwitch : MonoBehaviour, IRotatable {
         }
         if (wrappedAngle < fanRotationThreshold)
         {
-            fanBehaviour.FanBlow = false;
+            fanBehaviour.fanState = FanState.Suck;
             if (forwardUI != null && backwardUI != null)
             {
                 FanBlowUI(false);
@@ -79,10 +83,16 @@ public class FanSwitch : MonoBehaviour, IRotatable {
             if (WrapAngle(this.gameObject.transform.localRotation.eulerAngles.x) >= fanRotationCeiling)
             {
                 isRotating = false;
+                leverGo = false;
             }
             else
             {
+                if (!leverGo)
+                {
+                    leverSource.PlayOneShot(leverClip);
+                }
                 this.gameObject.transform.Rotate(transform.right * Time.deltaTime * switchSpeed);
+                leverGo = true;
             }
         }
         else
@@ -90,10 +100,16 @@ public class FanSwitch : MonoBehaviour, IRotatable {
             if (WrapAngle(this.gameObject.transform.localRotation.eulerAngles.x) <= -fanRotationCeiling)
             {
                 isRotating = false;
+                leverGo = false;
             }
             else
             {
+                if (!leverGo)
+                {
+                    leverSource.PlayOneShot(leverClip);
+                }
                 this.gameObject.transform.Rotate(-transform.right * Time.deltaTime * switchSpeed);
+                leverGo = true;
             }
         }
     }
